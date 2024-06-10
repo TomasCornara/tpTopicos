@@ -10,10 +10,28 @@ typedef struct alumno {
         float promedio;
 } alumno;
 
-int main()
-{
-    char vector[]= "hOLA sOY Yo";
-    printf("%s",normalizarNombre(vector));
+int main(int argc, char *argv[]){
+    //argv[0] es el nombre del archivo
+    //argv[1] es el prefijo
+    //argv[2] es la cantidad de archivos
+
+
+    //Chequea que se ingrese el prefijo de cada archivo y la cantidad a mergear
+    if(argc < 3){
+        if(argc < 2){
+            printf("Se requiere la cantidad de archivos \n");
+        } else {
+            printf("Se requiere el prefijo de cada archivo");
+        }
+        return(-1);
+    }
+
+    //Paso el argumento de la cantidad a numero
+    int cantArchivos = atoi(argv[2]);
+
+    //Test
+    printf("%d \n", cantArchivos);
+    printf("%s",argv[1]);
 
     return 0;
 }
