@@ -1,4 +1,4 @@
-# Tp topicos 3635 1Er cuatrimestre 2024.
+# TP topicos 3635 1er. cuatrimestre 2024.
 ## COM 2600
 
 Repositorio para la resolucion del TP de la materia.
