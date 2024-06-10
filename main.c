@@ -18,10 +18,10 @@ int main(int argc, char *argv[]){
 
     //Chequea que se ingrese el prefijo de cada archivo y la cantidad a mergear
     if(argc < 3){
-        if(argc < 2){
-            printf("Se requiere la cantidad de archivos \n");
+        if(argc == 2){
+            fprintf(stderr,"Se requiere la cantidad de archivos.\n");
         } else {
-            printf("Se requiere el prefijo de cada archivo");
+            fprintf(stderr,"Se requiere el prefijo de cada archivo y la cantidad de archivos.");
         }
         return(-1);
     }
@@ -29,9 +29,26 @@ int main(int argc, char *argv[]){
     //Paso el argumento de la cantidad a numero
     int cantArchivos = atoi(argv[2]);
 
-    //Test
-    printf("%d \n", cantArchivos);
-    printf("%s",argv[1]);
+    //Creacion del vector de archivos
+    FILE **vectorArchivos = malloc(cantArchivos * sizeof(FILE*)); //direcciones de memorias de los archivos
+    for(int i = 0; i < cantArchivos; i++){
+        vectorArchivos[i] = NULL;
+    }
+
+    //Cargo las direcciones de los archivos
+    int cantArchCargados = cargarArchivos(vectorArchivos,argv[1],cantArchivos);
+
+    //check
+    printf("La cantidad de archivos cargados fue %d.\n",cantArchCargados);
+
+
+    //check
+    for(int i = 1; i <= cantArchivos; i++){
+        if(vectorArchivos[i] != NULL){
+            printf("Archivo %s cargado correctamente.\n",vectorArchivos[i]);
+        }
+    }
+
 
     return 0;
 }
