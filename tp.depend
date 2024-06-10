@@ -1,13 +1,16 @@
 # depslib dependency file v1.0
-1717689388 source:c:\users\tomas\desktop\tptopicos\funciones\funciones.c
+1718042946 source:c:\users\tomas\desktop\tptopicos\funciones\funciones.c
 	<stdio.h>
 	<stdlib.h>
+	<ctype.h>
 
-1717691858 source:c:\users\tomas\desktop\tptopicos\main.c
+1718042993 source:c:\users\tomas\desktop\tptopicos\main.c
 	<stdio.h>
 	<stdlib.h>
 	<inttypes.h>
-	"./funciones.h"
+	"./func.h"
 
 1717689388 c:\users\tomas\desktop\tptopicos\funciones.h
+
+1718041878 c:\users\tomas\desktop\tptopicos\func.h
 

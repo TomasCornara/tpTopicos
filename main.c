@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "./funciones.h"
+#include "./func.h"
 
 typedef struct alumno {
         unsigned long long dni;
@@ -12,7 +12,13 @@ typedef struct alumno {
 
 int main()
 {
-    FILE *archivo = fopen("./archivos/estudiantes5.dat","rb");
+    char vector[]= "hOLA sOY Yo";
+    printf("%s",normalizarNombre(vector));
+
+    return 0;
+}
+
+/* FILE *archivo = fopen("./archivos/estudiantes5.dat","rb");
     if(!archivo){
         printf("Error al abrir archivo");
         return 1;
@@ -29,5 +35,4 @@ int main()
 
     fclose(archivo);
 
-    return 0;
-}
+*/
