@@ -1,19 +1,21 @@
 # depslib dependency file v1.0
-1718062511 source:c:\users\tomas\desktop\tptopicos\funciones\funciones.c
+1718234689 source:c:\users\tomas\desktop\tptopicos\funciones\funciones.c
 	<stdio.h>
 	<stdlib.h>
 	<ctype.h>
 	<string.h>
+	<stdio.h>
+	<stdlib.h>
 
-1718062971 source:c:\users\tomas\desktop\tptopicos\main.c
+1718232469 source:c:\users\tomas\desktop\tptopicos\main.c
 	<stdio.h>
 	<stdlib.h>
 	<inttypes.h>
-	"./func.h"
+	"func.h"
 
 1717689388 c:\users\tomas\desktop\tptopicos\funciones.h
 
-1718061173 c:\users\tomas\desktop\tptopicos\func.h
+1718234666 c:\users\tomas\desktop\tptopicos\func.h
 
 1718222806 source:/home/Tomas/Documentos/GitHub/tpTopicos/funciones/funciones.c
 	<stdio.h>

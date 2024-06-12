@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+
 
 typedef struct alumno {
         unsigned long long dni;
@@ -10,17 +14,14 @@ typedef struct alumno {
         float promedio;
 } alumno;
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 // Merge multiple archivos cargados a un vector
-void* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp)(void*, void*)) {
+void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp)(void*, void*)) {
     // Creo el archivo donde voy a mergear
     FILE* merge = fopen("merge.dat", "wb");
     if (!merge) {
         fprintf(stderr, "Error al crear el archivo merge");
-        return NULL;
+        return;
     }
 
     // Creo el vector donde voy a cargar los registros
@@ -28,7 +29,7 @@ void* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funCom
     if (!vectorRegistros) {
         fprintf(stderr, "Error al crear el vectorRegistros");
         fclose(merge); // Cerrar el archivo antes de retornar
-        return NULL;
+        return;
     }
 
     // Creo la memoria que voy a usar de buffer
@@ -37,19 +38,28 @@ void* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funCom
         fprintf(stderr, "Error al crear el buffer para registros");
         free(vectorRegistros); // Liberar memoria antes de retornar
         fclose(merge); // Cerrar el archivo antes de retornar
-        return NULL;
+        return;
     }
+
+
+    /*Test para debug
+    fread(buffer,tam,1,vecArchivos[1]);
+    printf("%llu %llu %s %.2f \n",
+               ((alumno*)buffer)->dni,
+               ((alumno*)buffer)->fechaDeInscripcion,
+               ((alumno*)buffer)->nombreYApellido,
+               ((alumno*)buffer)->promedio);*/
 
     // Cargo el primer bache de registros manualmente
     void* auxReg = vectorRegistros;
-    for (size_t i = 0; i < cantArch; i++) {
+    for (size_t i = 1; i <= cantArch; i++) {
         if (fread(auxReg, tam, 1, vecArchivos[i]) != 1) {
             // Manejar error de lectura
             fprintf(stderr, "Error al leer del archivo %zu", i);
             free(vectorRegistros);
             free(buffer);
             fclose(merge);
-            return NULL;
+            return;
         }
         auxReg += tam;
     }
@@ -84,9 +94,7 @@ void* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funCom
     // Devuelvo la memoria pedida
     free(buffer);
     free(vectorRegistros);
-    //fclose(merge); // Cerrar el archivo antes de retornar
-
-    return merge;
+    fclose(merge); // Cerrar el archivo antes de retornar
 }
 
 
@@ -121,10 +129,10 @@ int cmpFechaIns(void* elemA, void*elemB){
     alumno *alumnoB = (alumno*)elemB;
 
     if(alumnoB->fechaDeInscripcion < alumnoA->fechaDeInscripcion) //Cuando se encuentra un reg mejor
-        return -1;
+        return 1;
 
     if(alumnoB->fechaDeInscripcion > alumnoA->fechaDeInscripcion)
-        return 1;
+        return -1;
 
     return 0; //No debiera ocurrir nunca este caso
 }
