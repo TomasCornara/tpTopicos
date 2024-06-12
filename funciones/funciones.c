@@ -52,9 +52,8 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
 
     // Cargo el primer bache de registros manualmente
     void* auxReg = vectorRegistros;
-    for (size_t i = 1; i <= cantArch; i++) {
+    for (size_t i = 0; i < cantArch; i++) {
         if (fread(auxReg, tam, 1, vecArchivos[i]) != 1) {
-            // Manejar error de lectura
             fprintf(stderr, "Error al leer del archivo %zu", i);
             free(vectorRegistros);
             free(buffer);
@@ -81,7 +80,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
 
         // Lee el siguiente registro del archivo correspondiente
         if (fread(minReg, tam, 1, vecArchivos[minIdx]) != 1) {
-            // Si no se puede leer más del archivo, lo eliminamos del vector de archivos
+            // Si no se puede leer más del archivo, lo elimino del vector
             fclose(vecArchivos[minIdx]);
             for (size_t i = minIdx; i < cantArch - 1; i++) {
                 vecArchivos[i] = vecArchivos[i + 1];
@@ -94,7 +93,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
     // Devuelvo la memoria pedida
     free(buffer);
     free(vectorRegistros);
-    fclose(merge); // Cerrar el archivo antes de retornar
+    fclose(merge);
 }
 
 
@@ -186,8 +185,8 @@ FILE* cargarArch(char* nombre, size_t num){
 int cargarArchivos(FILE** vec, char* nombre, size_t cant){
     int cantCargados = 0;
 
-    for(int i = 1; i <= cant; i++){
-        vec[i] = cargarArch(nombre,i);
+    for(int i = 0; i < cant; i++){
+        vec[i] = cargarArch(nombre,i+1);
         if(vec[i] != NULL){
             cantCargados+= 1;
         }
