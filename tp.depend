@@ -15,3 +15,17 @@
 
 1718061173 c:\users\tomas\desktop\tptopicos\func.h
 
+1718222806 source:/home/Tomas/Documentos/GitHub/tpTopicos/funciones/funciones.c
+	<stdio.h>
+	<stdlib.h>
+	<ctype.h>
+	<string.h>
+
+1718223464 source:/home/Tomas/Documentos/GitHub/tpTopicos/main.c
+	<stdio.h>
+	<stdlib.h>
+	<inttypes.h>
+	"func.h"
+
+1718222806 /home/Tomas/Documentos/GitHub/tpTopicos/func.h
+

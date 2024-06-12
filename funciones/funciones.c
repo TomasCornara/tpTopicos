@@ -10,6 +10,87 @@ typedef struct alumno {
         float promedio;
 } alumno;
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Merge multiple archivos cargados a un vector
+void* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp)(void*, void*)) {
+    // Creo el archivo donde voy a mergear
+    FILE* merge = fopen("merge.dat", "wb");
+    if (!merge) {
+        fprintf(stderr, "Error al crear el archivo merge");
+        return NULL;
+    }
+
+    // Creo el vector donde voy a cargar los registros
+    void* vectorRegistros = malloc(cantArch * tam);
+    if (!vectorRegistros) {
+        fprintf(stderr, "Error al crear el vectorRegistros");
+        fclose(merge); // Cerrar el archivo antes de retornar
+        return NULL;
+    }
+
+    // Creo la memoria que voy a usar de buffer
+    void* buffer = malloc(tam);
+    if (!buffer) {
+        fprintf(stderr, "Error al crear el buffer para registros");
+        free(vectorRegistros); // Liberar memoria antes de retornar
+        fclose(merge); // Cerrar el archivo antes de retornar
+        return NULL;
+    }
+
+    // Cargo el primer bache de registros manualmente
+    void* auxReg = vectorRegistros;
+    for (size_t i = 0; i < cantArch; i++) {
+        if (fread(auxReg, tam, 1, vecArchivos[i]) != 1) {
+            // Manejar error de lectura
+            fprintf(stderr, "Error al leer del archivo %zu", i);
+            free(vectorRegistros);
+            free(buffer);
+            fclose(merge);
+            return NULL;
+        }
+        auxReg += tam;
+    }
+
+    // Fusión de archivos
+    while (cantArch > 0) {
+        // Encuentra el registro mínimo en el vector
+        void* minReg = vectorRegistros;
+        size_t minIdx = 0;
+        for (size_t i = 1; i < cantArch; i++) {
+            if (funComp((char*)vectorRegistros + i * tam, minReg) < 0) {
+                minReg = (char*)vectorRegistros + i * tam;
+                minIdx = i;
+            }
+        }
+
+        // Escribe el registro mínimo en el archivo de fusión
+        fwrite(minReg, tam, 1, merge);
+
+        // Lee el siguiente registro del archivo correspondiente
+        if (fread(minReg, tam, 1, vecArchivos[minIdx]) != 1) {
+            // Si no se puede leer más del archivo, lo eliminamos del vector de archivos
+            fclose(vecArchivos[minIdx]);
+            for (size_t i = minIdx; i < cantArch - 1; i++) {
+                vecArchivos[i] = vecArchivos[i + 1];
+                memcpy((char*)vectorRegistros + i * tam, (char*)vectorRegistros + (i + 1) * tam, tam);
+            }
+            cantArch--;
+        }
+    }
+
+    // Devuelvo la memoria pedida
+    free(buffer);
+    free(vectorRegistros);
+    //fclose(merge); // Cerrar el archivo antes de retornar
+
+    return merge;
+}
+
+
+
 //Funcion de ordenamiento generica usando bubble sort
 void genSort(void* vector, size_t tam, size_t cantElem, int (*compInt)(void*, void*)) {
     for (int i = 0; i < cantElem - 1; i++) {

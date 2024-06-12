@@ -50,13 +50,13 @@ int main(int argc, char *argv[]){
 
     int cantArchCargados = cargarArchivos(vectorArchivos,argv[1],cantArchivos); //Cargo las direcciones de los archivos y recibo cuantas se cargaron bien
 
-    alumno top5Alum[5] = {
+    /*alumno top5Alum[5] = {
                             {0,0,"",-1},
                             {0,0,"",-1},
                             {0,0,"",-1},
                             {0,0,"",-1},
                             {0,0,"",-1},
-                         }; /*Nota: Normalmente un top deberia iniciar en el primer elemento que se cargue porque
+                         }; */ /*Nota: Normalmente un top deberia iniciar en el primer elemento que se cargue porque
                               no sabes en que numero empieza la comparacion pero aca si sabemos que no es posible que
                               un promedio de notas sea negativo, asi que inicializar en negativo
                               nos ahorra trabajo de implementacion*/
@@ -67,13 +67,26 @@ int main(int argc, char *argv[]){
     //check
     printf("La cantidad de archivos cargados fue %d.\n",cantArchCargados);
 
+    //proceso de merge
+    mergeGenMult(vectorArchivos,cantArchCargados,sizeof(alumno),cmpFechaIns);
+
 
     //check
-    for(int i = 1; i <= cantArchivos; i++){
-        if(vectorArchivos[i] != NULL){
-            printf("Archivo %s cargado correctamente.\n",vectorArchivos[i]);
-        }
+    FILE* archivo = fopen("merge.dat","rb");
+    if(!archivo){
+        printf("Error al abrir archivo");
+        return 1;
     }
+
+    alumno buffer;
+    while(fread(&buffer,sizeof(alumno),1,archivo)){
+        printf("%llu %llu %s %.2f \n",
+               buffer.dni,
+               buffer.fechaDeInscripcion,
+               buffer.nombreYApellido,
+               buffer.promedio);
+    }
+
 
 
     return 0;
