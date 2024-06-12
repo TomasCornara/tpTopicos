@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <inttypes.h>
-#include "./func.h"
+#include "func.h"
 
 typedef struct alumno {
         unsigned long long dni;
@@ -11,32 +11,58 @@ typedef struct alumno {
 } alumno;
 
 int main(int argc, char *argv[]){
-    //argv[0] es el nombre del archivo
-    //argv[1] es el prefijo
-    //argv[2] es la cantidad de archivos
+    //BLOQUE DE ARGUMENTOS
+    /*
+        argv[0] contiene el nombre del programa
+        argv[1] contiene el prefijo de los archivos
+        argv[2] contiene la cantidad de archivos
+    */
 
-
-    //Chequea que se ingrese el prefijo de cada archivo y la cantidad a mergear
-    if(argc < 3){
+    if(argc < 3){ //Chequeo que la cant de args sea correcta
         if(argc == 2){
             fprintf(stderr,"Se requiere la cantidad de archivos.\n");
         } else {
             fprintf(stderr,"Se requiere el prefijo de cada archivo y la cantidad de archivos.");
         }
-        return(-1);
+        return(1);
+    }
+    //FIN DE BLOQUE DE ARGUMENTOS
+
+
+    //BLOQUE DE DECLARACION
+    FILE *archivoFinal = fopen("merge.dat","wb");
+    if (!archivoFinal){
+        fprintf(stderr,"Error al crear el archivo de merge.\n");
+        return(1);
+    };
+
+    FILE *mejoresAlumnos = fopen("MejoresAlumnos.csv","w");
+    if (!mejoresAlumnos){
+        fprintf(stderr,"Error al crear el archivo de mejores alumnos.\n");
+        return(1);
     }
 
-    //Paso el argumento de la cantidad a numero
-    int cantArchivos = atoi(argv[2]);
+    int cantArchivos = atoi(argv[2]); //Conversion del 2do arg en numero
 
-    //Creacion del vector de archivos
     FILE **vectorArchivos = malloc(cantArchivos * sizeof(FILE*)); //direcciones de memorias de los archivos
-    for(int i = 0; i < cantArchivos; i++){
+    for(int i = 0; i < cantArchivos; i++) //Inicializacion en vacio
         vectorArchivos[i] = NULL;
-    }
 
-    //Cargo las direcciones de los archivos
-    int cantArchCargados = cargarArchivos(vectorArchivos,argv[1],cantArchivos);
+    int cantArchCargados = cargarArchivos(vectorArchivos,argv[1],cantArchivos); //Cargo las direcciones de los archivos y recibo cuantas se cargaron bien
+
+    alumno top5Alum[5] = {
+                            {0,0,"",-1},
+                            {0,0,"",-1},
+                            {0,0,"",-1},
+                            {0,0,"",-1},
+                            {0,0,"",-1},
+                         }; /*Nota: Normalmente un top deberia iniciar en el primer elemento que se cargue porque
+                              no sabes en que numero empieza la comparacion pero aca si sabemos que no es posible que
+                              un promedio de notas sea negativo, asi que inicializar en negativo
+                              nos ahorra trabajo de implementacion*/
+    //FIN DEL BLOQUE DE DECLARACION
+
+
 
     //check
     printf("La cantidad de archivos cargados fue %d.\n",cantArchCargados);
