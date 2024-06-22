@@ -1,78 +1,69 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-
-
-typedef struct alumno {
-        unsigned long long dni;
-        unsigned long long fechaDeInscripcion;
-        char nombreYApellido[30];
-        float promedio;
-} alumno;
+#include "../func.h"
 
 // Funcion para ordenar alumnos dentro de un vector por mayor promedio
-int myrProm(void* baseVd, void* compVd){
-    alumno* base = (alumno*)baseVd;
-    alumno* comp = (alumno*)compVd;
+int myrProm(const void* baseVd, const void* compVd) {
+    const alumno* base = (const alumno*)baseVd;
+    const alumno* comp = (const alumno*)compVd;
 
-    //Son equivalentes
-    if(base->promedio == comp->promedio)
-        return 0;
+    // El elemento base tiene un promedio mayor que el comparado
+    if (base->promedio > comp->promedio)
+        return 1;
 
-    //El elemento entrante es mejor que el que estaba
-    if(base->promedio < comp->promedio)
+    // El elemento base tiene un promedio menor que el comparado
+    if (base->promedio < comp->promedio)
         return -1;
 
-    //El elemento entrante es peor que el que estaba
-    return 1;
+    // Ambos elementos tienen el mismo promedio
+    return 0;
 }
 
-// Inserta elementos en un vector de forma ordenada y genérica
-void* instOrd(void* key, void* vec, size_t ce, size_t tam, int (*cmpFunc)(const void*, const void*)) {
-    int indRemplazo = 0;
-    void* fin = vec + ((ce-1) * tam);
-    int cmp = 1;
 
-    for (void* aux = vec; aux < fin && cmp > 0; aux += tam, indRemplazo++) {
-        cmp = cmpFunc(aux, key);
-        // Si son iguales, la pos a cambiar sera la que sigue
-        if (cmp == 0) {
-            indRemplazo++;
+#include <stddef.h>
+#include <string.h>
+
+// Funcion para insertar un elemento en orden en un vector
+void* insOrd(void* inicio, void* elem, size_t* cantElems, size_t capVec, size_t tamElem, int (*cmp)(const void* a, const void* b)) {
+    // Puntero al vector
+    void* posActual = inicio;
+
+    // Si el vector no esta lleno
+    if (*cantElems < capVec) {
+        // Coloca el puntero en la última posicion y aumenta la cantidad de elementos
+        posActual = (char*)posActual + (*cantElems) * tamElem;
+        (*cantElems)++;
+    } else {
+        // Evita salirse del vector
+        posActual = (char*)posActual + (*cantElems - 1) * tamElem;
+
+        // Si el elemento es menor que los elementos del vector, no se puede insertar
+        if (cmp(posActual, elem) > 0) {
+            return NULL;
         }
     }
 
-    // Me aseguro de no salirme del vector
-    if (indRemplazo > ce) {
-        return NULL;
+    // Hago espacio para el nuevo elemento
+    while ((char*)posActual > (char*)inicio && cmp((char*)posActual - tamElem, elem) < 0) {
+        memcpy(posActual, (char*)posActual - tamElem, tamElem);
+        posActual = (char*)posActual - tamElem;
     }
 
-    // Key es mejor que el elemento del vector
-    void* posRemplazo = vec + ((indRemplazo - 1) * tam);
+    // Copia el nuevo elemento en su posicion correcta
+    memcpy(posActual, elem, tamElem);
 
-    // Mueve los elementos hacia adelante para hacer espacio para la nueva clave
-    for (void* aux = fin - tam; aux >= posRemplazo; aux -= tam) {
-        memcpy(aux + tam, aux, tam);
-    }
-
-    // Ya parado en donde voy a reemplazar, inserto key
-    memcpy(posRemplazo, key, tam);
-
-    // Devuelvo la posición que cambié, por si interesa guardarla
-    return posRemplazo;
+    // Devuelve la posicion del elemento insertado
+    return posActual;
 }
 
 
 // Merge multiple archivos cargados a un vector
-void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp)(void*, void*)) {
+FILE* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp)(void*, void*)) {
     // Creo el archivo donde voy a mergear
-    FILE* merge = fopen("merge.dat", "wb");
+    FILE* merge = fopen("merge.dat", "wb+");
     if (!merge) {
         fprintf(stderr, "Error al crear el archivo merge");
-        return;
+        return NULL;
     }
 
     // Creo el vector donde voy a cargar los registros
@@ -80,7 +71,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
     if (!vectorRegistros) {
         fprintf(stderr, "Error al crear el vectorRegistros");
         fclose(merge);
-        return;
+        return NULL;
     }
 
     // Creo la memoria que voy a usar de buffer
@@ -89,7 +80,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
         fprintf(stderr, "Error al crear el buffer para registros");
         free(vectorRegistros);
         fclose(merge);
-        return;
+        return NULL;
     }
 
     // Cargo el primer bache de registros manualmente
@@ -100,7 +91,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
             free(vectorRegistros);
             free(buffer);
             fclose(merge);
-            return;
+            return NULL;
         }
         auxReg += tam;
     }
@@ -135,33 +126,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
     // Devuelvo la memoria pedida
     free(buffer);
     free(vectorRegistros);
-    fclose(merge);
-}
-
-
-
-//Funcion de ordenamiento generica usando bubble sort
-void genSort(void* vector, size_t tam, size_t cantElem, int (*compInt)(void*, void*)) {
-    for (int i = 0; i < cantElem - 1; i++) {
-        void* aux = vector;
-        int cantCambios = 0;
-
-        for (int j = 0; j < cantElem - i - 1; j++) {
-            if (compInt(aux, aux + tam) == 1) {
-                void* buffer = malloc(tam);
-                memcpy(buffer, aux, tam);
-                memcpy(aux, aux + tam, tam);
-                memcpy(aux + tam, buffer, tam);
-                free(buffer);
-                cantCambios++;
-            }
-            aux += tam;
-        }
-
-        if (cantCambios == 0) {
-            break;
-        }
-    }
+    return merge;
 }
 
 //Funcion para ser usada dentro de la funcion Merge

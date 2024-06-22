@@ -2,13 +2,11 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include "func.h"
-
-typedef struct alumno {
-        unsigned long long dni;
-        unsigned long long fechaDeInscripcion;
-        char nombreYApellido[30];
-        float promedio;
-} alumno;
+#define TAM 5
+#define PARAMETROS_TOTALES 3
+#define PARAMETRO_EJECUTABLE 0
+#define PREFIJO_ARCHIVOS 1
+#define CANT_ARCHIVOS 2
 
 int main(int argc, char *argv[]){
     //BLOQUE DE ARGUMENTOS
@@ -33,13 +31,8 @@ int main(int argc, char *argv[]){
 
 
     //BLOQUE DE DECLARACION
-    FILE *archivoFinal = fopen("merge.dat","wb+");
-    if (!archivoFinal){
-        fprintf(stderr,"Error al crear el archivo de merge.\n");
-        return(1);
-    };
-
-    FILE *mejoresAlumnos = fopen("MejoresAlumnos.csv","w");
+    FILE *archivoFinal;
+    FILE *mejoresAlumnos = fopen("MejoresAlumnos.csv","wt");
     if (!mejoresAlumnos){
         fprintf(stderr,"Error al crear el archivo de mejores alumnos.\n");
         return(1);
@@ -49,18 +42,18 @@ int main(int argc, char *argv[]){
     int cantArchivos = atoi(argv[2]); //Conversion del 2do arg en numero
 
     FILE **vectorArchivos = malloc(cantArchivos * sizeof(FILE*)); //direcciones de memorias de los archivos
+    if(!vectorArchivos){
+        fclose(mejoresAlumnos);
+        fprintf(stderr,"Error al asignar memoria para el vector de archivos");
+        return 1;
+    }
     for(int i = 0; i < cantArchivos; i++) //Inicializacion en vacio
         vectorArchivos[i] = NULL;
 
     int cantArchCargados = cargarArchivos(vectorArchivos,argv[1],cantArchivos); //Cargo las direcciones de los archivos y recibo cuantas se cargaron bien
 
-    alumno top5Alum[5] = {
-        { -1, -1, "", 0.0 },
-        { -1, -1, "", 0.0 },
-        { -1, -1, "", 0.0 },
-        { -1, -1, "", 0.0 },
-        { -1, -1, "", 0.0 }
-    };
+    alumno top5Alum[TAM] = {};
+    size_t ce = 0;
     alumno buffer;
     //FIN DEL BLOQUE DE DECLARACION
 
@@ -69,15 +62,20 @@ int main(int argc, char *argv[]){
 
 
     //INICIO BLOQUE MAIN
-    //CHECK CANT ARCHIVOS CARGADOS
+    //Chequeo cantidad de archivos cargados
     printf("-> La cantidad de archivos cargados fue %d.\n",cantArchCargados);
 
 
-    //PROCESO DE MERGE
-    mergeGenMult(vectorArchivos,cantArchCargados,sizeof(alumno),cmpFechaIns);
+    //Proceso de merge
+    archivoFinal= mergeGenMult(vectorArchivos,cantArchCargados,sizeof(alumno),cmpFechaIns);
+    if(!archivoFinal){
+        fprintf(stderr,"Error al crear el archivo de mejores alumnos.\n");
+        fclose(mejoresAlumnos);
+        free(vectorArchivos);
+    }
 
 
-    //CHECK MERGE
+    //Chequeo el merge
     printf("\nARCHIVO MERGE RESULTANTE: \n");
     fseek(archivoFinal, 0, SEEK_SET);
     while(fread(&buffer,sizeof(alumno),1,archivoFinal)){
@@ -90,26 +88,12 @@ int main(int argc, char *argv[]){
     printf("\n\n");
 
 
-    //CARGA DEL VECTOR MEJORES ALUMNOS
+    //Carga vectror alumnos
     fseek(archivoFinal, 0, SEEK_SET);
 
-
-
-    //Leo el primer registro, siempre va a ser el mayor
-    if (fread(&top5Alum[0], sizeof(alumno), 1, archivoFinal) != 1) {
-        fprintf(stderr,"Error al leer el primer registro\n");
-        fclose(archivoFinal);
-        return 1;
-    }
-
-    /*for(int i = 0; i < 5; i++){
-        fread(&top5Alum[i], sizeof(alumno), 1, archivoFinal);
-    }*/
-
-    //Leo el resto
+    //Insertamos alumnos en el vector
     while(fread(&buffer, sizeof(alumno), 1, archivoFinal) == 1)
-        instOrd(&buffer, top5Alum, sizeof(top5Alum) / sizeof(top5Alum[0]), sizeof(top5Alum[0]), myrProm);
-
+        insOrd(top5Alum,&buffer,&ce,TAM,sizeof(alumno),myrProm);
 
     //Check vector
     printf("TOP 5 ALUMNOS:\n");
@@ -126,21 +110,3 @@ int main(int argc, char *argv[]){
     return 0;
 }
 
-/* FILE *archivo = fopen("./archivos/estudiantes5.dat","rb");
-    if(!archivo){
-        printf("Error al abrir archivo");
-        return 1;
-    }
-
-    alumno buffer;
-    while(fread(&buffer,sizeof(alumno),1,archivo)){
-        printf("%llu %llu %s %.2f \n",
-               buffer.dni,
-               buffer.fechaDeInscripcion,
-               buffer.nombreYApellido,
-               buffer.promedio);
-    }
-
-    fclose(archivo);
-
-*/
