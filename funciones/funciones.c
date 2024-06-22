@@ -14,6 +14,57 @@ typedef struct alumno {
         float promedio;
 } alumno;
 
+// Funcion para ordenar alumnos dentro de un vector por mayor promedio
+int myrProm(void* baseVd, void* compVd){
+    alumno* base = (alumno*)baseVd;
+    alumno* comp = (alumno*)compVd;
+
+    //Son equivalentes
+    if(base->promedio == comp->promedio)
+        return 0;
+
+    //El elemento entrante es mejor que el que estaba
+    if(base->promedio < comp->promedio)
+        return -1;
+
+    //El elemento entrante es peor que el que estaba
+    return 1;
+}
+
+// Inserta elementos en un vector de forma ordenada y genérica
+void* instOrd(void* key, void* vec, size_t ce, size_t tam, int (*cmpFunc)(const void*, const void*)) {
+    int indRemplazo = 0;
+    void* fin = vec + (ce * tam);
+    int cmp = 1;
+
+    for (void* aux = vec; aux < fin && cmp > 0; aux += tam, indRemplazo++) {
+        cmp = cmpFunc(aux, key);
+        // Si son iguales, la pos a cambiar sera la que sigue
+        if (cmp == 0) {
+            indRemplazo++;
+        }
+    }
+
+    // Me aseguro de no salirme del vector
+    if (indRemplazo > ce) {
+        return NULL;
+    }
+
+    // Key es mejor que el elemento del vector
+    void* posRemplazo = vec + ((indRemplazo - 1) * tam);
+
+    // Mueve los elementos hacia adelante para hacer espacio para la nueva clave
+    for (void* aux = fin - tam; aux >= posRemplazo; aux -= tam) {
+        memcpy(aux + tam, aux, tam);
+    }
+
+    // Ya parado en donde voy a reemplazar, inserto key
+    memcpy(posRemplazo, key, tam);
+
+    // Devuelvo la posición que cambié, por si interesa guardarla
+    return posRemplazo;
+}
+
 
 // Merge multiple archivos cargados a un vector
 void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp)(void*, void*)) {
@@ -28,7 +79,7 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
     void* vectorRegistros = malloc(cantArch * tam);
     if (!vectorRegistros) {
         fprintf(stderr, "Error al crear el vectorRegistros");
-        fclose(merge); // Cerrar el archivo antes de retornar
+        fclose(merge);
         return;
     }
 
@@ -36,24 +87,15 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
     void* buffer = malloc(tam);
     if (!buffer) {
         fprintf(stderr, "Error al crear el buffer para registros");
-        free(vectorRegistros); // Liberar memoria antes de retornar
-        fclose(merge); // Cerrar el archivo antes de retornar
+        free(vectorRegistros);
+        fclose(merge);
         return;
     }
 
-
-    /*Test para debug
-    fread(buffer,tam,1,vecArchivos[1]);
-    printf("%llu %llu %s %.2f \n",
-               ((alumno*)buffer)->dni,
-               ((alumno*)buffer)->fechaDeInscripcion,
-               ((alumno*)buffer)->nombreYApellido,
-               ((alumno*)buffer)->promedio);*/
-
     // Cargo el primer bache de registros manualmente
     void* auxReg = vectorRegistros;
-    for (size_t i = 0; i < cantArch; i++) {
-        if (fread(auxReg, tam, 1, vecArchivos[i]) != 1) {
+    for (int i = 0; i < cantArch; i++) {
+        if (fread(auxReg, tam, 1, *(vecArchivos+i)) != 1) {
             fprintf(stderr, "Error al leer del archivo %zu", i);
             free(vectorRegistros);
             free(buffer);
@@ -63,28 +105,28 @@ void mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam, int (*funComp
         auxReg += tam;
     }
 
-    // Fusión de archivos
+    // Merge de archivos
     while (cantArch > 0) {
-        // Encuentra el registro mínimo en el vector
+        // Encuentra el mejor registro en el vector
         void* minReg = vectorRegistros;
-        size_t minIdx = 0;
-        for (size_t i = 1; i < cantArch; i++) {
-            if (funComp((char*)vectorRegistros + i * tam, minReg) < 0) {
-                minReg = (char*)vectorRegistros + i * tam;
+        int minIdx = 0;
+        for (int i = 0; i < cantArch; i++) {
+            if (funComp(vectorRegistros + i * tam, minReg) < 0) {
+                minReg = vectorRegistros + i * tam;
                 minIdx = i;
             }
         }
 
-        // Escribe el registro mínimo en el archivo de fusión
+        // Escribe el mejor
         fwrite(minReg, tam, 1, merge);
 
         // Lee el siguiente registro del archivo correspondiente
-        if (fread(minReg, tam, 1, vecArchivos[minIdx]) != 1) {
+        if (fread(minReg, tam, 1, *(vecArchivos+minIdx) ) != 1) {
             // Si no se puede leer más del archivo, lo elimino del vector
-            fclose(vecArchivos[minIdx]);
-            for (size_t i = minIdx; i < cantArch - 1; i++) {
-                vecArchivos[i] = vecArchivos[i + 1];
-                memcpy((char*)vectorRegistros + i * tam, (char*)vectorRegistros + (i + 1) * tam, tam);
+            fclose(*(vecArchivos+minIdx));
+            for (int i = minIdx; i < cantArch - 1; i++) {
+                *(vecArchivos+i) = *(vecArchivos + (i+1));
+                memcpy(vectorRegistros + i * tam, vectorRegistros + (i + 1) * tam, tam);
             }
             cantArch--;
         }
