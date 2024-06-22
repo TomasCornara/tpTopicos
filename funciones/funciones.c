@@ -34,7 +34,7 @@ int myrProm(void* baseVd, void* compVd){
 // Inserta elementos en un vector de forma ordenada y genérica
 void* instOrd(void* key, void* vec, size_t ce, size_t tam, int (*cmpFunc)(const void*, const void*)) {
     int indRemplazo = 0;
-    void* fin = vec + (ce * tam);
+    void* fin = vec + ((ce-1) * tam);
     int cmp = 1;
 
     for (void* aux = vec; aux < fin && cmp > 0; aux += tam, indRemplazo++) {
