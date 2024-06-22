@@ -2,6 +2,7 @@
 #define FUNC_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct alumno {
         unsigned long long dni;

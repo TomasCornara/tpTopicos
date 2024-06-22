@@ -95,17 +95,46 @@ int main(int argc, char *argv[]){
     while(fread(&buffer, sizeof(alumno), 1, archivoFinal) == 1)
         insOrd(top5Alum,&buffer,&ce,TAM,sizeof(alumno),myrProm);
 
-    //Check vector
+    //Guardo en el CSV e imprimo para chequear
     printf("TOP 5 ALUMNOS:\n");
     for (int i = 0; i < 5; i++) {
-        printf("%llu %llu %s %.2f\n",
+        // Convierto a fecha el dato
+        time_t tiempo =(time_t)(top5Alum[i].fechaDeInscripcion/1000); //Se divide entre 1000 porque esta en MS y lo necesito en SG. Sino no entra en time_t
+        // Lo paso a estructura
+        struct tm *tiempoLocal = gmtime(&tiempo);
+
+        // Chequeo que no haya error
+        if (tiempoLocal == NULL) {
+            fprintf(stderr, "Error al convertir el tiempo para el alumno %d.\n", i);
+            continue;
+        }
+
+        // Escribo en el archivo CSV
+        fprintf(mejoresAlumnos, "%llu,%02d/%02d/%d %02d:%02d:%02d,%s,%.2f\n",
+                top5Alum[i].dni,
+                tiempoLocal->tm_mday,
+                tiempoLocal->tm_mon + 1,
+                tiempoLocal->tm_year + 1900,
+                tiempoLocal->tm_hour,
+                tiempoLocal->tm_min,
+                tiempoLocal->tm_sec,
+                top5Alum[i].nombreYApellido,
+                top5Alum[i].promedio);
+
+        // Imprimo para chequear
+        printf("%llu,%02d/%02d/%d %02d:%02d:%02d,%s,%.2f\n",
                top5Alum[i].dni,
-               top5Alum[i].fechaDeInscripcion,
+               tiempoLocal->tm_mday,
+               tiempoLocal->tm_mon + 1,
+               tiempoLocal->tm_year + 1900,
+               tiempoLocal->tm_hour,
+               tiempoLocal->tm_min,
+               tiempoLocal->tm_sec,
                top5Alum[i].nombreYApellido,
                top5Alum[i].promedio);
     }
 
-
+    fclose(mejoresAlumnos);
     fclose(archivoFinal);
     return 0;
 }
