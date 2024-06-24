@@ -69,13 +69,6 @@ int main(int argc, char *argv[]){
         cerrarArchivosYLiberarMemoria(vectorArchivos,cantArchCargados);
     }
 
-    //Normalizar nombres
-    archivoFinal = normalizarArchivo(archivoFinal,"listadoTotalAlumnos.dat");
-    if(!archivoFinal){
-        fprintf(stderr,"Error al normalizar los archivos.\n");
-        cerrarArchivosYLiberarMemoria(vectorArchivos,cantArchCargados);
-    }
-
     //Chequeo el merge
     archivoFinal = freopen("listadoTotalAlumnos.dat","rb+",archivoFinal);
     printf("\nARCHIVO MERGE RESULTANTE: \n");
@@ -107,41 +100,41 @@ int main(int argc, char *argv[]){
 
     //Guardo en el CSV e imprimo para chequear
     printf("TOP 5 ALUMNOS:\n");
-    for (int i = 0; i < 5; i++) {
+    for (alumno *aux = top5Alum ; aux < top5Alum + TAM; aux++) {
         // Convierto a fecha el dato
-        time_t tiempo =(time_t)(top5Alum[i].fechaDeInscripcion/1000); //Se divide entre 1000 porque esta en MS y lo necesito en SG. Sino no entra en time_t
+        time_t tiempo =(time_t)(aux->fechaDeInscripcion/1000); //Se divide entre 1000 porque esta en MS y lo necesito en SG. Sino no entra en time_t
         // Lo paso a estructura
         struct tm *tiempoLocal = gmtime(&tiempo);
 
         // Chequeo que no haya error
         if (tiempoLocal == NULL) {
-            fprintf(stderr, "Error al convertir el tiempo para el alumno %d.\n", i);
+            fprintf(stderr, "Error al convertir el tiempo para el alumno %s.\n",aux->nombreYApellido);
             continue;
         }
 
         // Escribo en el archivo CSV
         fprintf(mejoresAlumnos, "%llu,%02d/%02d/%d,%02d:%02d:%02d,%s,%.2f\n",
-                top5Alum[i].dni,
-                tiempoLocal->tm_mday,
-                tiempoLocal->tm_mon + 1,
-                tiempoLocal->tm_year + 1900,
-                tiempoLocal->tm_hour,
-                tiempoLocal->tm_min,
-                tiempoLocal->tm_sec,
-                top5Alum[i].nombreYApellido,
-                top5Alum[i].promedio);
+            aux->dni,
+            tiempoLocal->tm_mday,
+            tiempoLocal->tm_mon + 1,
+            tiempoLocal->tm_year + 1900,
+            tiempoLocal->tm_hour,
+            tiempoLocal->tm_min,
+            tiempoLocal->tm_sec,
+            aux->nombreYApellido,
+            aux->promedio);
 
         // Imprimo para chequear
         printf("%llu,%02d/%02d/%d %02d:%02d:%02d,%s,%.2f\n",
-               top5Alum[i].dni,
-               tiempoLocal->tm_mday,
-               tiempoLocal->tm_mon + 1,
-               tiempoLocal->tm_year + 1900,
-               tiempoLocal->tm_hour,
-               tiempoLocal->tm_min,
-               tiempoLocal->tm_sec,
-               top5Alum[i].nombreYApellido,
-               top5Alum[i].promedio);
+            aux->dni,
+            tiempoLocal->tm_mday,
+            tiempoLocal->tm_mon + 1,
+            tiempoLocal->tm_year + 1900,
+            tiempoLocal->tm_hour,
+            tiempoLocal->tm_min,
+            tiempoLocal->tm_sec,
+            aux->nombreYApellido,
+            aux->promedio);
     }
     /// FIN BLOQUE MAIN
 
