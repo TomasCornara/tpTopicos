@@ -70,7 +70,7 @@ int main(int argc, char *argv[]){
     }
 
     //Normalizar nombres
-    normalizarArchivo(archivoFinal,"listadoTotalAlumnos.dat");
+    archivoFinal = normalizarArchivo(archivoFinal,"listadoTotalAlumnos.dat");
 
     //Chequeo el merge
     archivoFinal = freopen("listadoTotalAlumnos.dat","rb+",archivoFinal);
