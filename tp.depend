@@ -1,12 +1,10 @@
 # depslib dependency file v1.0
-1719090576 source:c:\users\tomas\desktop\tptopicos\funciones\funciones.c
+1719188523 source:c:\users\tomas\desktop\tptopicos\funciones\funciones.c
 	<ctype.h>
 	<string.h>
 	"../func.h"
-	<stddef.h>
-	<string.h>
 
-1719090973 source:c:\users\tomas\desktop\tptopicos\main.c
+1719188610 source:c:\users\tomas\desktop\tptopicos\main.c
 	<stdio.h>
 	<stdlib.h>
 	<inttypes.h>
@@ -14,7 +12,7 @@
 
 1717689388 c:\users\tomas\desktop\tptopicos\funciones.h
 
-1719090576 c:\users\tomas\desktop\tptopicos\func.h
+1719187476 c:\users\tomas\desktop\tptopicos\func.h
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
