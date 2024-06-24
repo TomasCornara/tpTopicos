@@ -230,7 +230,12 @@ int cmpFechaIns(void* elemA, void*elemB){
 
 /// NORMALIZAMOS EL ARCHIVO RESULTANTE DE ALUMNOS
 FILE* normalizarArchivo(FILE *archivo, char* nmbArch) {
-    // Mover el puntero al inicio del archivo
+    archivo = freopen(nmbArch,"rb+",archivo);
+    if(!archivo){
+        fprintf(stderr, "Error al ganar permisos de lectura para archivo\n");
+        return NULL;
+    }
+
     alumno reg;
     size_t tam = sizeof(alumno);
     FILE* temp = fopen("temp.dat", "wb");
@@ -241,7 +246,7 @@ FILE* normalizarArchivo(FILE *archivo, char* nmbArch) {
 
     fseek(archivo, 0, SEEK_SET);
     while (fread(&reg, tam, 1, archivo) == 1) {
-        normalizarNombre(reg.nombreYApellido);
+        strcpy(reg.nombreYApellido,normalizarNombre(reg.nombreYApellido));
         fwrite(&reg, tam, 1, temp);
     }
 
@@ -249,17 +254,9 @@ FILE* normalizarArchivo(FILE *archivo, char* nmbArch) {
     fclose(archivo);
     remove(nmbArch);
     rename("temp.dat", nmbArch);
+    return archivo;
 
-    // Reabrir el archivo original para lectura y escritura
-    archivo = fopen(nmbArch, "rb+");
-    if (!archivo) {
-        perror("Error al abrir el archivo renombrado");
-        return NULL;
-    }
-
-    return archivo; // Devolver el puntero al archivo reabierto
 }
-
 /// Pone mayusculas en las iniciales y minusculas en las demas
 char *normalizarNombre(char *str) {
     char *aux = str;

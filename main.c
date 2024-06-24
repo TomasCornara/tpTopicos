@@ -71,6 +71,10 @@ int main(int argc, char *argv[]){
 
     //Normalizar nombres
     archivoFinal = normalizarArchivo(archivoFinal,"listadoTotalAlumnos.dat");
+    if(!archivoFinal){
+        fprintf(stderr,"Error al normalizar los archivos.\n");
+        cerrarArchivosYLiberarMemoria(vectorArchivos,cantArchCargados);
+    }
 
     //Chequeo el merge
     archivoFinal = freopen("listadoTotalAlumnos.dat","rb+",archivoFinal);
