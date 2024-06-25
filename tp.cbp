@@ -34,7 +34,6 @@
 			<Add option="-std=c99" />
 		</Compiler>
 		<Unit filename="func.h" />
-		<Unit filename="funciones.h" />
 		<Unit filename="funciones/funciones.c">
 			<Option compilerVar="CC" />
 		</Unit>

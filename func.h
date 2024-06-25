@@ -2,7 +2,7 @@
 #define FUNC_H_INCLUDED
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
+
 
 typedef struct alumno {
         unsigned long long dni;
@@ -18,7 +18,7 @@ FILE* mergeGenMult(FILE** vecArchivos, size_t cantArch, size_t tam,int (*funComp
 int cmpFechaIns(void* elemA, void*elemB);//Funcion para ser usada dentro de la funcion Merge
 int myrProm(const void* baseVd,const void* compVd); //Compara por mayor promedio
 void* insOrd(void* inicio, void* elem, size_t* cantElems, size_t capVec, size_t tamElem, int (*cmp)(const void* a, const void* b)); //Inserta un elemento ordenado en un vector
-void cerrarArchivosYLiberarMemoria(FILE **vectorArchivos, int cantArchCargados);
-FILE* normalizarArchivo(FILE *archivo, char* nmbArch);
+void cerrarArchivosYLiberarMemoria(FILE **vectorArchivos, int cantArchCargados); // Cierra los archivos del vector
+FILE* normalizarArchivo(FILE *archivo, char* nmbArch);// Pone mayusculas en las iniciales y minusculas en las demas
 
 #endif // FUNC_H_INCLUDED
